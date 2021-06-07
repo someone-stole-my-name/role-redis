@@ -1,0 +1,32 @@
+- name: Install configuration files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "0744"
+  loop:
+    - {
+        src: redis.service,
+        dest: /etc/systemd/system/,
+        owner: root,
+        group: root
+      }
+    - {
+        src: sentinel.service,
+        dest: /etc/systemd/system/,
+        owner: root,
+        group: root
+      }
+    - {
+        src: redis.conf,
+        dest: "{{ redis_config_dir }}",
+        owner: "{{ redis_user }}",
+        group: "{{ redis_group }}"
+      }
+    - {
+        src: sentinel.conf,
+        dest: "{{ redis_config_dir }}",
+        owner: "{{ redis_user }}",
+        group: "{{ redis_group }}"
+      }

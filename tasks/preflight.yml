@@ -1,0 +1,19 @@
+- name: Check if Redis is already installed
+  stat:
+    path: "/usr/local/bin/{{ item }}"
+  loop: "{{ redis_binaries }}"
+  register: redis_check_installed
+
+- set_fact:
+    redis_should_install: yes
+  when: not item.stat.exists
+  loop: "{{ redis_check_installed.results }}"
+
+- name: "Check if installed Redis is {{ redis_version }}"
+  shell: redis-cli --version
+  when: not redis_should_install
+  register: redis_check_version
+
+- set_fact:
+    redis_should_install: yes
+  when: redis_check_version.changed and redis_version not in redis_check_version.stdout

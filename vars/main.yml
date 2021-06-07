@@ -1,0 +1,18 @@
+---
+redis_should_install: no
+redis_user: redis
+redis_group: redis
+redis_tarball: "redis-{{ redis_version }}.tar.gz"
+redis_download_tarball: "https://download.redis.io/releases/{{ redis_tarball }}"
+redis_config_dir: /etc/redis.d
+redis_data_dir: /var/redis
+redis_build_dependencies:
+  - build-essential
+  - libsystemd-dev
+redis_binaries:
+  - redis-server
+  - redis-sentinel
+  - redis-cli
+  - redis-benchmark
+  - redis-check-aof
+  - redis-check-rdb

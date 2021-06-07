@@ -1,0 +1,14 @@
+[Unit]
+Description=Redis Sentinel
+Documentation=https://redis.io/documentation
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ redis_user }}
+Group={{ redis_group }}
+ExecStart=/usr/local/bin/redis-server {{ redis_config_dir}}/sentinel.conf --sentinel
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

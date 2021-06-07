@@ -1,0 +1,112 @@
+---
+- hosts: elasticsearch-master-2
+  vars_files:
+    - "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+  gather_facts: false
+  tasks:
+    - name: Verify cluster status
+      block:
+        - uri:
+            url: "https://localhost:9200/_cluster/health"
+            method: GET
+            force_basic_auth: yes
+            user: elastic
+            password: "{{ elasticsearch_super_user_password }}"
+            validate_certs: no
+            status_code: 200
+          register: cluster_health
+
+    - assert:
+        that: cluster_health.json.status == 'green'
+
+    - assert:
+        that: cluster_health.json.cluster_name == elasticsearch_cluster_name
+
+    - assert:
+        that: cluster_health.json.number_of_data_nodes == 1
+
+    - assert:
+        that: cluster_health.json.number_of_nodes == 3
+
+    - name: Verify custom settings
+      uri:
+        url: "https://localhost:9200/.security/_settings"
+        method: GET
+        force_basic_auth: yes
+        user: elastic
+        password: "{{ elasticsearch_super_user_password }}"
+        validate_certs: no
+        status_code: 200
+      register: cluster_settings
+
+    - assert:
+        that: cluster_settings.json['.security-7'].settings.index.auto_expand_replicas == '0-10'
+
+- name: Verify Scripts
+  hosts: elasticsearch-master-1, elasticsearch-master-2
+  vars_files:
+    - "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+  gather_facts: false
+  tasks:
+    - name: Check index.sh
+      stat:
+        path: "{{ elasticsearch_index_path }}/index.sh"
+      register: index_result
+    - assert:
+        that: index_result.stat.exists == True
+
+    - name: Check common.sh
+      stat:
+        path: "{{ elasticsearch_operations_path }}/common.sh"
+      register: common_result
+    - assert:
+        that: common_result.stat.exists == True
+
+    - name: Check operations scripts
+      stat:
+        path: "{{ elasticsearch_operations_path }}/{{ item }}"
+      register: scripts_check
+      with_items: "{{ elasticsearch_operations_scripts }}"
+    - assert:
+        that: "{{ iterator.stat.exists == True }}"
+      loop: "{{ scripts_check.results }}"
+      loop_control:
+        loop_var: iterator
+
+- hosts: elasticsearch
+  gather_facts: false
+  vars_files:
+    - "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/vars/main.yml"
+  tasks:
+    - name: Verify vm.max_map_count
+      lineinfile:
+        name: /etc/sysctl.conf
+        line: "vm.max_map_count=262144"
+        state: present
+      check_mode: yes
+      register: max_map_count
+      failed_when: (max_map_count is changed) or (max_map_count is failed)
+
+    - service_facts:
+
+    - assert:
+        that: ansible_facts.services["elasticsearch{{ elasticsearch_mayor_version }}.service"].state == 'running'
+
+    - name: Kill java process
+      become: yes
+      shell: "kill -9 $(pgrep java)"
+
+
+    - service_facts:
+
+    - assert:
+        that: ansible_facts.services["elasticsearch{{ elasticsearch_mayor_version }}.service"].state != 'running'
+
+    - name: Wait for systemd to start elasticsearch
+      pause:
+        seconds: 120
+
+    - service_facts:
+
+    - assert:
+        that: ansible_facts.services["elasticsearch{{ elasticsearch_mayor_version }}.service"].state == 'running'

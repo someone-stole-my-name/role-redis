@@ -1,0 +1,22 @@
+- name: "Download Redis {{ redis_version }}"
+  get_url:
+    url: "{{ redis_download_tarball }}"
+    dest: "/tmp/{{ redis_tarball }}"
+
+- name: Create temporary build directory
+  tempfile:
+    state: directory
+    suffix: redis
+    path: /opt
+  register: redis_temporary_install_dir
+
+- name: Unarchive tarball to temporary dir
+  unarchive:
+    remote_src: yes
+    src: "/tmp/{{ redis_tarball }}"
+    dest: "{{ redis_temporary_install_dir.path }}"
+
+- name: Delete Redis tarball
+  file:
+    path: "/tmp/{{ redis_tarball }}"
+    state: absent

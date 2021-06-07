@@ -1,0 +1,38 @@
+- name: Create redis group
+  group:
+    name: "{{ redis_group }}"
+    system: yes
+
+- name: Create redis user
+  user:
+    name: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    comment: Redis user
+    system: yes
+    expires: -1
+
+- name: Create Redis directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    mode: "0774"
+  loop:
+    - "{{ redis_config_dir }}"
+    - "{{ redis_data_dir }}"
+
+- name: Install Redis
+  copy:
+    remote_src: yes
+    src: "{{ redis_temporary_install_dir.path }}/redis-{{ redis_version }}/src/{{ item }}"
+    dest: "/usr/local/bin"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+    mode: '0744'
+  loop: "{{ redis_binaries }}"
+
+- name: Delete temporary build directory
+  file:
+    path: "{{ redis_temporary_install_dir.path }}"
+    state: absent

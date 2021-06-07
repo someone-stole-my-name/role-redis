@@ -1,0 +1,27 @@
+- include: preflight.yml
+  when: redis_preflight
+
+- set_fact:
+    redis_should_install: yes
+  when: not redis_preflight
+
+- include: download.yml
+  when: redis_should_install
+
+- include: build.yml
+  when: redis_should_install
+
+- include: install.yml
+  when: redis_should_install
+
+- include: configure.yml
+
+- name: Start Redis
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+    daemon-reload: yes
+  loop:
+    - redis
+    - sentinel

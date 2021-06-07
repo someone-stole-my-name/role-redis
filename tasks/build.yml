@@ -1,0 +1,9 @@
+- name: Install build dependencies
+  apt:
+    name: "{{ redis_build_dependencies }}"
+    update_cache: yes
+
+- name: Build Redis
+  shell: "make USE_SYSTEMD=yes"
+  args:
+    chdir: "{{ redis_temporary_install_dir.path }}/redis-{{ redis_version }}"

@@ -1,0 +1,11 @@
+---
+redis_bind_addr: 0.0.0.0
+redis_port: 6379
+redis_sentinel_port: 26379
+redis_sentinel_quorum: 2
+redis_sentinel_down_after: 10000
+redis_sentinel_failover_timeout: 10000
+redis_version: 6.2.4
+redis_preflight: yes
+redis_initial_master: redis-1
+redis_initial_master_ip: "{{ hostvars[redis_initial_master].ansible_default_ipv4.address }}"

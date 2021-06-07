@@ -1,0 +1,61 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+
+platforms:
+  - name: redis-1
+    groups:
+      - redis
+    image: jrei/systemd-ubuntu:20.04
+    command: /lib/systemd/systemd
+    networks:
+      - name: redis.local
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    ulimits:
+      - memlock:-1:-1
+
+  - name: redis-2
+    groups:
+      - redis
+    image: jrei/systemd-ubuntu:20.04
+    command: /lib/systemd/systemd
+    networks:
+      - name: redis.local
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    ulimits:
+      - memlock:-1:-1
+
+  - name: redis-3
+    groups:
+      - redis
+    image: jrei/systemd-ubuntu:20.04
+    command: /lib/systemd/systemd
+    networks:
+      - name: redis.local
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    ulimits:
+      - memlock:-1:-1
+
+provisioner:
+  name: ansible
+  ansible_args:
+    - -e docker=yes
+verifier:
+  name: ansible
