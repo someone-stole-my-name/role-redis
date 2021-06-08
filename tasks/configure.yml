@@ -5,28 +5,33 @@
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     mode: "0744"
+    force: "{{ item.force }}"
   loop:
     - {
         src: redis.service,
         dest: /etc/systemd/system/,
         owner: root,
-        group: root
+        group: root,
+        force: yes
       }
     - {
         src: sentinel.service,
         dest: /etc/systemd/system/,
         owner: root,
-        group: root
+        group: root,
+        force: yes
       }
     - {
         src: redis.conf,
         dest: "{{ redis_config_dir }}",
         owner: "{{ redis_user }}",
-        group: "{{ redis_group }}"
+        group: "{{ redis_group }}",
+        force: no
       }
     - {
         src: sentinel.conf,
         dest: "{{ redis_config_dir }}",
         owner: "{{ redis_user }}",
-        group: "{{ redis_group }}"
+        group: "{{ redis_group }}",
+        force: no
       }

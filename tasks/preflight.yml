@@ -12,6 +12,7 @@
 - name: "Check if installed Redis is {{ redis_version }}"
   shell: redis-cli --version
   when: not redis_should_install
+  changed_when: false
   register: redis_check_version
 
 - set_fact:
