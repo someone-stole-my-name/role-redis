@@ -4,6 +4,6 @@
     update_cache: yes
 
 - name: Build Redis
-  shell: "make USE_SYSTEMD=yes"
+  shell: "make USE_SYSTEMD=yes BUILD_TLS=yes"
   args:
     chdir: "{{ redis_temporary_install_dir.path }}/redis-{{ redis_version }}"

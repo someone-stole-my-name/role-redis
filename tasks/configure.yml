@@ -35,3 +35,15 @@
         group: "{{ redis_group }}",
         force: no
       }
+
+- name: Install certificates
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ redis_config_dir }}/{{ item.name }}"
+    owner: "{{ redis_user }}"
+    group: "{{ redis_group }}"
+  when: redis_tls
+  loop:
+    - { src: "{{ redis_certificates.pubkey }}", name: tls_cert.crt }
+    - { src: "{{ redis_certificates.privkey }}", name: tls_key.key }
+    - { src: "{{ redis_certificates.ca }}", name: tls_ca.crt }

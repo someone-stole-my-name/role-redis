@@ -4,6 +4,11 @@ Redis cluster Ansible Role
 Role Variables
 --------------
 
+- `redis_tls`: Enable TLS in both Redis and Sentinel. If this is set to true then `redis_certificates` must also be set. (Default: yes)
+- `redis_certificates`: Dictionary with certificates.
+    - `pubkey`
+    - `privkey`
+    - `ca`
 - `redis_bind_addr`: This is the address that both Redis and Sentinel will bind to. (Default: `0.0.0.0`)
 - `redis_port`: Port used by Redis. (Default: `6379`)
 - `redis_sentinel_port`: Port used by Sentinel. (Default: `26379`)
